@@ -18,7 +18,7 @@ contract XAAIAO is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     IERC20 public tokenIn;
     IERC20 public rewardToken;
 
-    // Total rewards to be distributed: 20 billion (in wei)
+    // Total rewards to be distributed (in wei)
     uint256  public totalReward;
 
     // Deposit period:
@@ -31,14 +31,14 @@ contract XAAIAO is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     // Total amount of tokenIn deposited in the contract
     uint256 public totalDepositedTokenIn;
 
-    // Mapping to store the amount of DBC deposited by each user
+    // Mapping to store the amount of TokenIn deposited by each user
     mapping(address => uint256) public userDeposits;
 
-    // Mapping to track whether a user has claimed their  rewards
+    // Mapping to track whether a user has claimed their rewards
     mapping(address => bool) public hasClaimed;
 
     // Events
-    event Deposit(address indexed user, uint256 amount);
+    event DepositTokenIn(address indexed user, uint256 amount);
     event RewardsClaimed(address indexed user, uint256 amount);
     event DepositedTokenClaimed(uint256 amount);
 
@@ -93,9 +93,10 @@ contract XAAIAO is Initializable, UUPSUpgradeable, OwnableUpgradeable {
 
     /**
      * @dev Allows users to claim their rewards after the distribution period begins.
-     * The amount of rewards is proportional to the amount of DBC they deposited.
+     * The amount of rewards is proportional to the amount of Token In they deposited.
      * Emits a `RewardsClaimed` event.
      */
+
     function claimRewards() external onlyAfterDistribution {
         require(!hasClaimed[msg.sender], "Rewards already claimed");
         require(userDeposits[msg.sender] > 0, "No deposit found");
@@ -137,7 +138,7 @@ contract XAAIAO is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         uint256 balance = tokenIn.balanceOf(address(this));
         require(balance > 0, "No balance claim");
 
-        // Transfer all remaining DBC to the owner
+        // Transfer all remaining TokenIn to the owner
         SafeERC20.safeTransfer(tokenIn, msg.sender, balance);
         emit DepositedTokenClaimed(balance);
     }
@@ -172,11 +173,6 @@ contract XAAIAO is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         userDeposits[msg.sender] += amount;
         totalDepositedTokenIn += amount;
 
-        emit Deposit(msg.sender, amount);
-    }
-
-    function test() external onlyOwner {
-        startTime = block.timestamp;
-        endTime = startTime + 1 hours;
+        emit DepositTokenIn(msg.sender, amount);
     }
 }
