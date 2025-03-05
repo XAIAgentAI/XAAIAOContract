@@ -2,7 +2,7 @@
 pragma solidity ^0.8.22;
 
 import {Script} from "forge-std/Script.sol";
-import {IAO} from "../src/IAO.sol";
+import {TokenVesting} from "../src/TokenVesting.sol";
 import {Upgrades} from "openzeppelin-foundry-upgrades/Upgrades.sol";
 import {Options} from "openzeppelin-foundry-upgrades/Options.sol";
 
@@ -35,12 +35,9 @@ contract Deploy is Script {
     function deploy() public returns (address proxy, address logic) {
         //        Options memory opts;
 
-        address rewardTokenContract = vm.envAddress("REWARD_TOKEN_CONTRACT");
-        console.log("rewardTokenContract Address:", rewardTokenContract);
-
         proxy = Upgrades.deployUUPSProxy(
-            "IAO.sol:IAO",
-            abi.encodeCall(IAO.initialize, (msg.sender, rewardTokenContract))
+            "TokenVesting.sol:TokenVesting",
+            abi.encodeCall(TokenVesting.initialize, (msg.sender))
         );
         return (proxy, logic);
     }

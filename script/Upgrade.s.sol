@@ -33,7 +33,7 @@ contract Upgrade is Script {
         //
         //                Upgrades.validateUpgrade("NFTStaking.sol:NFTStaking", opts);
 
-        Upgrades.upgradeProxy(transparentProxy, "IAO.sol:IAO", "");
+        Upgrades.upgradeProxy(transparentProxy, "TokenVesting.sol:TokenVesting", "");
 
         vm.stopBroadcast();
     }
