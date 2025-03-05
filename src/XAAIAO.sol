@@ -5,6 +5,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 /**
  * @title XAAIAO
@@ -133,13 +134,12 @@ contract XAAIAO is Initializable, UUPSUpgradeable, OwnableUpgradeable {
      * This function can only be called after the deposit period ends.
      */
     function claimDepositedToken() external onlyAfterDistribution onlyOwner {
-        uint256 dbcBalance = address(this).balance;
-        require(dbcBalance > 0, "No DBC to claim");
+        uint256 balance = tokenIn.balanceOf(address(this));
+        require(balance > 0, "No balance claim");
 
         // Transfer all remaining DBC to the owner
-        (bool success, ) = msg.sender.call{value: dbcBalance}("");
-        require(success, "DBC transfer failed");
-        emit DepositedTokenClaimed(dbcBalance);
+        SafeERC20.safeTransfer(tokenIn, msg.sender, balance);
+        emit DepositedTokenClaimed(balance);
     }
 
     /**
@@ -155,12 +155,28 @@ contract XAAIAO is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         return block.timestamp >= startTime;
     }
 
-    function getReward() external view returns(uint256) {
-        if (userDeposits[msg.sender] == 0){
+    function getReward(address user) external view returns(uint256) {
+        if (userDeposits[user] == 0){
             return 0;
         }
-        uint256 userReward = (userDeposits[msg.sender] * totalReward) /
+        uint256 userReward = (userDeposits[user] * totalReward) /
                     totalDepositedTokenIn;
         return userReward;
+    }
+
+    function deposit(uint256 amount) external onlyDuringDepositPeriod {
+        require(amount > 0, "amount must be greater than 0");
+
+        SafeERC20.safeTransferFrom(tokenIn, msg.sender, address(this), amount);
+        // Record deposit
+        userDeposits[msg.sender] += amount;
+        totalDepositedTokenIn += amount;
+
+        emit Deposit(msg.sender, amount);
+    }
+
+    function test() external onlyOwner {
+        startTime = block.timestamp;
+        endTime = startTime + 1 hours;
     }
 }
