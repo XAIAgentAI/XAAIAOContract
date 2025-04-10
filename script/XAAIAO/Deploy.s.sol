@@ -14,9 +14,7 @@ contract Deploy is Script {
         uint256 deployerPrivateKey;
 
         if (
-            bytes(privateKeyString).length > 0 &&
-            bytes(privateKeyString)[0] == "0" &&
-            bytes(privateKeyString)[1] == "x"
+            bytes(privateKeyString).length > 0 && bytes(privateKeyString)[0] == "0" && bytes(privateKeyString)[1] == "x"
         ) {
             deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         } else {
@@ -39,7 +37,7 @@ contract Deploy is Script {
         console.log("owner Address:", owner);
 
         address tokenInContract = vm.envAddress("XAAIAO_TOKEN_IN_CONTRACT");
-        console.log(" tokenInContract Address:",  tokenInContract);
+        console.log(" tokenInContract Address:", tokenInContract);
 
         address rewardTokenContract = vm.envAddress("XAAIAO_REWARD_TOKEN_CONTRACT");
         console.log("rewardTokenContract Address:", rewardTokenContract);
@@ -53,9 +51,23 @@ contract Deploy is Script {
         int256 rewardAmount = vm.envInt("XAAIAO_REWARD_AMOUNT");
         console.log("rewardAmount:", rewardAmount);
 
+        address nftHolderContract = vm.envAddress("XAAIAO_NFT_HOLDER_CONTRACT");
+        console.log("rewardTokenContract Address:", rewardTokenContract);
+
         proxy = Upgrades.deployUUPSProxy(
             "XAAIAO.sol:XAAIAO",
-            abi.encodeCall(XAAIAO.initialize, (owner, tokenInContract,rewardTokenContract, uint256(startTimestamp), uint256(periodHours), uint256(rewardAmount)))
+            abi.encodeCall(
+                XAAIAO.initialize,
+                (
+                    owner,
+                    tokenInContract,
+                    rewardTokenContract,
+                    uint256(startTimestamp),
+                    uint256(periodHours),
+                    uint256(rewardAmount),
+                    nftHolderContract
+                )
+            )
         );
         return (proxy, logic);
     }

@@ -14,9 +14,7 @@ contract Deploy is Script {
         uint256 deployerPrivateKey;
 
         if (
-            bytes(privateKeyString).length > 0 &&
-            bytes(privateKeyString)[0] == "0" &&
-            bytes(privateKeyString)[1] == "x"
+            bytes(privateKeyString).length > 0 && bytes(privateKeyString)[0] == "0" && bytes(privateKeyString)[1] == "x"
         ) {
             deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         } else {
@@ -38,10 +36,8 @@ contract Deploy is Script {
         address rewardTokenContract = vm.envAddress("REWARD_TOKEN_CONTRACT");
         console.log("rewardTokenContract Address:", rewardTokenContract);
 
-        proxy = Upgrades.deployUUPSProxy(
-            "IAO.sol:IAO",
-            abi.encodeCall(IAO.initialize, (msg.sender, rewardTokenContract))
-        );
+        proxy =
+            Upgrades.deployUUPSProxy("IAO.sol:IAO", abi.encodeCall(IAO.initialize, (msg.sender, rewardTokenContract)));
         return (proxy, logic);
     }
 }

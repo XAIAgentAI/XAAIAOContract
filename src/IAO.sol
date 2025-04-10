@@ -59,10 +59,7 @@ contract IAO is Initializable, UUPSUpgradeable, OwnableUpgradeable {
      */
     modifier onlyDuringDepositPeriod() {
         require(isStarted, "Distribution not started");
-        require(
-            block.timestamp >= startTime && block.timestamp <= endTime,
-            "Deposit period over"
-        );
+        require(block.timestamp >= startTime && block.timestamp <= endTime, "Deposit period over");
         _;
     }
 
@@ -90,7 +87,6 @@ contract IAO is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         emit Deposit(msg.sender, msg.value);
     }
 
-
     function start() external onlyOwner {
         require(isStarted == false, "Distribution already started");
         isStarted = true;
@@ -111,17 +107,13 @@ contract IAO is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         require(!hasClaimed[msg.sender], "Rewards already claimed");
         require(userDeposits[msg.sender] > 0, "No deposit found");
 
-        uint256 userReward = (userDeposits[msg.sender] * TOTAL_REWARD) /
-            totalDepositedDBC;
+        uint256 userReward = (userDeposits[msg.sender] * TOTAL_REWARD) / totalDepositedDBC;
 
         // Mark rewards as claimed
         hasClaimed[msg.sender] = true;
 
         // Transfer rewards to the user
-        require(
-            rewardToken.transfer(msg.sender, userReward),
-            "rewards transfer failed"
-        );
+        require(rewardToken.transfer(msg.sender, userReward), "rewards transfer failed");
 
         emit RewardsClaimed(msg.sender, userReward);
     }
@@ -141,7 +133,7 @@ contract IAO is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     }
 
     /**
-       * @dev Allows the owner (admin) to claim any remaining DBC from the contract.
+     * @dev Allows the owner (admin) to claim any remaining DBC from the contract.
      * This function can only be called after the deposit period ends.
      */
     function claimDBC() external onlyAfterDistribution onlyOwner {
@@ -149,7 +141,7 @@ contract IAO is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         require(dbcBalance > 0, "No DBC to claim");
 
         // Transfer all remaining DBC to the owner
-        (bool success, ) = msg.sender.call{value: dbcBalance}("");
+        (bool success,) = msg.sender.call{value: dbcBalance}("");
         require(success, "DBC transfer failed");
         emit DBCClaimed(dbcBalance);
     }
@@ -158,9 +150,7 @@ contract IAO is Initializable, UUPSUpgradeable, OwnableUpgradeable {
      * @dev Ensures that only the contract owner can authorize upgrades to the implementation contract.
      * @param newImplementation Address of the new implementation contract.
      */
-    function _authorizeUpgrade(
-        address newImplementation
-    ) internal override onlyOwner {}
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
     function version() public pure returns (uint8) {
         return 0;

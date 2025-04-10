@@ -12,9 +12,7 @@ contract Upgrade is Script {
         uint256 deployerPrivateKey;
 
         if (
-            bytes(privateKeyString).length > 0 &&
-            bytes(privateKeyString)[0] == "0" &&
-            bytes(privateKeyString)[1] == "x"
+            bytes(privateKeyString).length > 0 && bytes(privateKeyString)[0] == "0" && bytes(privateKeyString)[1] == "x"
         ) {
             deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         } else {
